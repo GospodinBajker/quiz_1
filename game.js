@@ -1,5 +1,7 @@
 const question = document.getElementById('question');
 const choices = Array.from(document.getElementsByClassName('choice-text'));
+const questionCounterText = document.getElementById('questionCounter');
+const scoreText = document.getElementById('score');
 
 let currentQuestion = {};
 let acceptingAnswers = false;
@@ -8,62 +10,36 @@ let questionCounter = 0;
 let availableQuestions = [];
 
 
-let questions = [{
-    question: "Koji jezik ne spada u programski jezik?",
-    choice1: "JavaScript",
-    choice2: "HTML",
-    choice3: "C++",
-    choice4: "Python",
-    answer: 2
-},
-{
-    question: "Koja reprezentacija je osvojila Evropsko prvenstvo u nogometu 2020?",
-    choice1: "Italija",
-    choice2: "Hrvatska",
-    choice3: "Portugal",
-    choice4: "Engleska",
-    answer: 1
-},
-{
-    question: "Glavni grad Maroka je?",
-    choice1: "Kairo",
-    choice2: "Dortmund",
-    choice3: "Rostov",
-    choice4: "Rabat",
-    answer: 4
-},
-{
-    question: "Koja valuta se koristi u Rusiji",
-    choice1: "Ruska rublja",
-    choice2: "Rial",
-    choice3: "Konvertibilna marka",
-    choice4: "Euro",
-    answer: 1
-},
-{
-    question: "Kako se zove glavna glumica u filmu The Intern iz 2015?",
-    choice1: "Angelina Jolie",
-    choice2: "Anne Hathaway",
-    choice3: "Emily Blunt",
-    choice4: "Selma Hayek",
-    answer: 2
-}
-];
+let questions = [];
+
+fetch(questions.json).then(res => {
+    console.log(res);
+    return res.json();
+}).then( loadedQuestions => {
+    console.log(loadedQuestions);
+})
 
 // Constants
 const CORRECT_BONUS = 10;
 const MAX_QUSTIONS = 5;
 
-function startGame() {
+    startGame = () => {
     questionCounter = 0;
     score = 0;
     availableQuestions = [...questions];
     getNewQuestion();
 };
 
-function getNewQuestion() {
+    getNewQuestion = () => {
+        if(availableQuestions.length === 0 || questionCounter >= MAX_QUSTIONS){
+            localStorage.setItem('mostRecentScore', score);
+            //go to the end of page
+            return window.location.assign('/end.html');
+        }
     questionCounter++;
-    const questionIndex = Math.floor(Math.random() + availableQuestions.length);
+    questionCounterText.innerText = questionCounter + "/" + MAX_QUSTIONS;
+
+    const questionIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestion = availableQuestions[questionIndex];
     question.innerText = currentQuestion.question;
 
@@ -75,6 +51,37 @@ function getNewQuestion() {
     availableQuestions.splice(questionIndex, 1);
 
     acceptingAnswers = true;
+};
+
+choices.forEach(choice => {
+    choice.addEventListener('click', e => {
+        if(!acceptingAnswers) return;
+
+        acceptingAnswers = false;
+        const selectedChoice = e.target;
+        const selectedAnswer = selectedChoice.dataset['number'];
+
+        // ? means if it's true than assign correct, : this means if it's not true than assign incorrect 
+        // (ternary) syntax
+        const classToApply = selectedAnswer == currentQuestion.answer ? 'correct' : 'incorrect';
+
+        if(classToApply === 'correct') {
+            incrementScore(CORRECT_BONUS);
+        };
+       
+        selectedChoice.parentElement.classList.add(classToApply);
+
+        setTimeout( () => {
+            selectedChoice.parentElement.classList.remove(classToApply);
+            getNewQuestion();
+        }, 1000);
+            
+    });
+});
+
+incrementScore = num => {
+    score += num;
+    scoreText.innerText = score;
 };
 
 startGame();
