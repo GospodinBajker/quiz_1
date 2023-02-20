@@ -15,7 +15,6 @@ username.addEventListener('keyup', () => {
 
 // e like event ;)
 saveHighScore = e => {
-    console.log('clicked the save button!');
 // this will prevent form from taking it's default action
     e.preventDefault();
 };
