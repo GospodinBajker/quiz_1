@@ -1,7 +1,9 @@
 const highScoresList = document.getElementById("highScoresList");
-const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+// const highScores = JSON.parse(localStorage.getItem("highScores"));
+const highScoresData = JSON.parse(localStorage.getItem("highScores"));
 
-highScoresList.innerHTML = highScores.map(score => {
-    //template literal ` `
-    return `<li class="high-score">${score.name} - ${score.score}</li>`;
-  }).join("");
+highScoresList.innerHTML = highScoresData.map((object) => {
+  //template literal ` `
+  const { name, score } = object;
+  return `<li class="high-score inserted-item">${name} - ${score}</li>`;
+});
